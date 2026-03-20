@@ -12,12 +12,21 @@
   "app": {
     "windows": [
       {
-        "title": "scout",
-        "width": 800,
-        "height": 600
+        "label": "notch",
+        "title": "Scout",
+        "width": 400,
+        "height": 80,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "resizable": false,
+        "skipTaskbar": true,
+        "focus": false,
+        "shadow": false
       }
     ],
     "security": {
+      "capabilities": ["default"],
       "csp": null
     }
   },
