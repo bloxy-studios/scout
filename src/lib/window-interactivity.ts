@@ -13,3 +13,14 @@ export async function setWindowInteractivity(
 
   await invoke("set_window_interactivity", { interactive });
 }
+
+export async function setNotchWindowSize(
+  width: number,
+  height: number,
+): Promise<void> {
+  if (!isTauriRuntime()) {
+    return;
+  }
+
+  await invoke("set_notch_window_size", { width, height });
+}

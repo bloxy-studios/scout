@@ -1,6 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useScout } from "../hooks/use-scout";
-import { setWindowInteractivity } from "../lib/window-interactivity";
+import {
+  setNotchWindowSize,
+  setWindowInteractivity,
+} from "../lib/window-interactivity";
 import { ScoutLogo } from "./ScoutLogo";
 import { ScoutBadge } from "./scout-badge";
 import { StatusText } from "./status-text";
@@ -20,6 +23,11 @@ export function NotchWidget() {
   const [isHovering, setIsHovering] = useState(false);
 
   const dimensions = NOTCH_DIMENSIONS[notchState];
+
+  useEffect(() => {
+    void setNotchWindowSize(dimensions.width, dimensions.height);
+  }, [dimensions.height, dimensions.width]);
+
   const content = useMemo(() => {
     switch (notchState) {
       case "idle":

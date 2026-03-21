@@ -27,6 +27,15 @@ fn set_window_interactivity(
     windowing::sync_window_interactivity(&window, interactive)
 }
 
+#[tauri::command]
+fn set_notch_window_size(
+    window: WebviewWindow,
+    width: u32,
+    height: u32,
+) -> Result<(), String> {
+    windowing::resize_notch_window(&window, width, height)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let interactivity_state = Arc::new(Mutex::new(WindowInteractivityState::default()));
@@ -49,7 +58,10 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![set_window_interactivity])
+        .invoke_handler(tauri::generate_handler![
+            set_window_interactivity,
+            set_notch_window_size
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

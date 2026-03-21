@@ -12,6 +12,20 @@ pub fn notch_window_size() -> PhysicalSize<u32> {
     PhysicalSize::new(NOTCH_WINDOW_WIDTH, NOTCH_WINDOW_HEIGHT)
 }
 
+pub fn resize_notch_window(
+    window: &WebviewWindow,
+    width: u32,
+    height: u32,
+) -> Result<(), String> {
+    let size = PhysicalSize::new(width, height);
+
+    window
+        .set_size(Size::Physical(size))
+        .map_err(|error| error.to_string())?;
+
+    position_window(window)
+}
+
 pub fn compute_notch_window_position(
     monitor_origin: PhysicalPosition<i32>,
     monitor_size: PhysicalSize<u32>,
@@ -60,9 +74,11 @@ pub fn configure_notch_window(window: &WebviewWindow) -> Result<(), String> {
 }
 
 fn resize_window(window: &WebviewWindow) -> Result<(), String> {
-    window
-        .set_size(Size::Physical(notch_window_size()))
-        .map_err(|error| error.to_string())
+    resize_notch_window(
+        window,
+        notch_window_size().width,
+        notch_window_size().height,
+    )
 }
 
 pub fn sync_window_interactivity(window: &WebviewWindow, force_interactive: bool) -> Result<(), String> {
