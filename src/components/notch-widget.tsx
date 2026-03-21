@@ -1,17 +1,18 @@
 import { useMemo, useState } from "react";
 import { useScout } from "../hooks/use-scout";
 import { setWindowInteractivity } from "../lib/window-interactivity";
-import { IdleDot } from "./idle-dot";
+import { ScoutLogo } from "./ScoutLogo";
+import { ScoutBadge } from "./scout-badge";
 import { StatusText } from "./status-text";
 import { Waveform } from "./waveform";
 
 const NOTCH_DIMENSIONS = {
-  idle: { width: 120, height: 36 },
-  listening: { width: 340, height: 56 },
-  processing: { width: 260, height: 48 },
-  searching: { width: 280, height: 48 },
-  speaking: { width: 340, height: 56 },
-  error: { width: 320, height: 52 },
+  idle: { width: 122, height: 34 },
+  listening: { width: 356, height: 58 },
+  processing: { width: 224, height: 44 },
+  searching: { width: 244, height: 44 },
+  speaking: { width: 356, height: 58 },
+  error: { width: 296, height: 48 },
 } as const;
 
 export function NotchWidget() {
@@ -22,21 +23,44 @@ export function NotchWidget() {
   const content = useMemo(() => {
     switch (notchState) {
       case "idle":
-        return <IdleDot />;
+        return <ScoutBadge />;
       case "listening":
-        return <Waveform level={audioLevel} label="Listening…" />;
+        return (
+          <div className="voice-cluster">
+            <ScoutLogo className="scout-logo scout-logo--active" />
+            <Waveform level={audioLevel} />
+          </div>
+        );
       case "processing":
-        return <StatusText text="Thinking…" />;
+        return (
+          <div className="status-cluster">
+            <ScoutBadge className="scout-badge--small" />
+            <StatusText text="Thinking…" />
+          </div>
+        );
       case "searching":
-        return <StatusText text="Searching the web…" showSpinner />;
+        return (
+          <div className="status-cluster">
+            <ScoutBadge className="scout-badge--small" />
+            <StatusText text="Searching the web…" showSpinner />
+          </div>
+        );
       case "speaking":
-        return <Waveform level={audioLevel} label="Scout is speaking" />;
+        return (
+          <div className="voice-cluster">
+            <ScoutLogo className="scout-logo scout-logo--active" />
+            <Waveform level={audioLevel} />
+          </div>
+        );
       case "error":
         return (
-          <StatusText
-            text={state.errorMessage ?? "Scout hit an unexpected error."}
-            tone="error"
-          />
+          <div className="status-cluster">
+            <ScoutBadge className="scout-badge--small" />
+            <StatusText
+              text={state.errorMessage ?? "Scout hit an unexpected error."}
+              tone="error"
+            />
+          </div>
         );
       default:
         return null;

@@ -18,9 +18,7 @@ function mockScoutState(notchState: ReturnType<typeof useScout>["notchState"]) {
     state: {
       notchState,
       sessionActive: notchState !== "idle",
-      agentMode: notchState === "speaking" ? "speaking" : "listening",
       errorMessage: notchState === "error" ? "Scout hit an unexpected error." : null,
-      hasPendingSearch: notchState === "searching",
     },
     notchState,
     audioLevel: 0.4,

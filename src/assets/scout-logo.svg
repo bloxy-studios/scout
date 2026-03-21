@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 353.78 361.45">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#radial-gradient);
+      }
+
+      .cls-2 {
+        fill: #fff;
+      }
+
+      .cls-3 {
+        fill: none;
+        stroke: #fff;
+        stroke-linecap: round;
+        stroke-miterlimit: 10;
+        stroke-width: 18px;
+      }
+    </style>
+    <radialGradient id="radial-gradient" cx="176.89" cy="180.72" fx="9.64" fy="159.45" r="200.35" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#c4c7f8"/>
+      <stop offset=".09" stop-color="#b1b4f4"/>
+      <stop offset=".24" stop-color="#9498ef"/>
+      <stop offset=".33" stop-color="#8a8eee"/>
+      <stop offset=".46" stop-color="#7478e9"/>
+      <stop offset=".63" stop-color="#5d60e4"/>
+      <stop offset=".74" stop-color="#5558e3"/>
+    </radialGradient>
+  </defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <path id="body" class="cls-1" d="M341.37,251.28c-23.92,69.12-90.66,150.05-161.6,88.05-77.77,50.97-119.81-35.74-116.66-59.38-29.43-.54-88.02-40.01-51.48-144.24C41.57,55.02,148.63-24.7,239.67,7.2c91.06,31.92,138.23,139.83,101.7,244.07Z"/>
+    <rect id="left-eye" class="cls-2" x="183.03" y="81.69" width="39.88" height="75.99" rx="19.94" ry="19.94" transform="translate(-17 35.22) rotate(-9.52)"/>
+    <rect id="right-eye" class="cls-2" x="236.27" y="70.25" width="39.88" height="74.4" rx="19.94" ry="19.94" transform="translate(-14.24 43.86) rotate(-9.52)"/>
+    <path id="mouth" class="cls-3" d="M119.21,168.19s16.35-16.51,22.24-22.06c.63-.6,3.11-.57,3.44.24,6.53,15.89,19.01,57.02,78.1,49.89"/>
+  </g>
+</svg>

@@ -15,15 +15,16 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-  --scout-surface: rgba(8, 10, 18, 0.88);
-  --scout-surface-border: rgba(129, 140, 248, 0.22);
-  --scout-accent-start: #6366f1;
-  --scout-accent-end: #8b5cf6;
-  --scout-text-muted: rgba(255, 255, 255, 0.66);
-  --scout-error: #fda4af;
+  --scout-surface: rgba(7, 7, 8, 0.96);
+  --scout-surface-soft: rgba(18, 18, 20, 0.98);
+  --scout-surface-border: rgba(255, 255, 255, 0.08);
+  --scout-text: rgba(255, 255, 255, 0.92);
+  --scout-text-muted: rgba(255, 255, 255, 0.6);
+  --scout-waveform: rgba(255, 255, 255, 0.9);
+  --scout-error: rgba(255, 215, 215, 0.92);
   --scout-shadow:
-    0 24px 50px rgba(5, 8, 20, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 18px 40px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 html,
@@ -64,91 +65,108 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   border: 1px solid var(--scout-surface-border);
   border-top: 0;
-  border-radius: 0 0 24px 24px;
-  background:
-    radial-gradient(circle at top, rgba(139, 92, 246, 0.18), transparent 52%),
-    linear-gradient(180deg, rgba(21, 27, 41, 0.96), var(--scout-surface));
+  border-radius: 0 0 22px 22px;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 20, 22, 0.98),
+    var(--scout-surface)
+  );
   box-shadow: var(--scout-shadow);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  color: inherit;
-  padding: 0 18px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: var(--scout-text);
+  padding: 0 16px;
   pointer-events: auto;
   transition:
-    width 180ms ease,
-    height 180ms ease,
-    transform 180ms ease,
-    box-shadow 180ms ease;
+    width 220ms ease,
+    height 220ms ease,
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    background 220ms ease;
   appearance: none;
 }
 
 .notch-widget.is-hovering {
   transform: translateY(1px);
+  box-shadow:
+    0 20px 44px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
-.idle-dot-shell {
+.scout-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-mask-image: var(--scout-badge-mask);
+  mask-image: var(--scout-badge-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
 }
 
-.idle-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: linear-gradient(
-    135deg,
-    var(--scout-accent-start),
-    var(--scout-accent-end)
-  );
-  box-shadow:
-    0 0 16px rgba(99, 102, 241, 0.65),
-    0 0 32px rgba(139, 92, 246, 0.35);
-  animation: scout-breathe 2.2s ease-in-out infinite;
+.scout-badge--small {
+  width: 16px;
+  height: 16px;
+  opacity: 0.82;
 }
 
-.waveform-wrap,
+.scout-logo {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  overflow: visible;
+}
+
+.voice-cluster,
+.status-cluster,
 .status-text {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.voice-cluster {
   gap: 12px;
   width: 100%;
 }
 
-.waveform-label,
-.status-text {
-  font-size: 13px;
-  letter-spacing: 0.01em;
+.status-cluster {
+  gap: 10px;
 }
 
-.waveform {
+.voice-waveform {
   display: inline-flex;
-  align-items: flex-end;
-  gap: 4px;
-  min-width: 126px;
-  height: 32px;
+  align-items: center;
+  gap: 6px;
+  min-width: 220px;
+  height: 40px;
 }
 
-.waveform-bar {
-  width: 5px;
-  min-height: 10px;
+.voice-waveform__bar {
+  width: 6px;
+  min-height: 8px;
   border-radius: 999px;
-  background: linear-gradient(
-    180deg,
-    rgba(139, 92, 246, 0.98),
-    rgba(99, 102, 241, 0.75)
-  );
-  box-shadow: 0 0 10px rgba(129, 140, 248, 0.26);
-  transition: height 120ms ease;
+  background: var(--scout-waveform);
+  transition:
+    height 120ms ease,
+    opacity 120ms ease;
 }
 
 .status-text {
-  color: rgba(255, 255, 255, 0.9);
+  gap: 10px;
+  color: var(--scout-text);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .status-text--error {
@@ -158,22 +176,10 @@ button {
 .status-spinner {
   width: 12px;
   height: 12px;
-  border: 2px solid rgba(129, 140, 248, 0.3);
-  border-top-color: rgba(129, 140, 248, 1);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.85);
   border-radius: 999px;
   animation: scout-spin 900ms linear infinite;
-}
-
-@keyframes scout-breathe {
-  0%,
-  100% {
-    transform: scale(0.9);
-    opacity: 0.8;
-  }
-  50% {
-    transform: scale(1.15);
-    opacity: 1;
-  }
 }
 
 @keyframes scout-spin {
