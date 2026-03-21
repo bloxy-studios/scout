@@ -14,8 +14,8 @@
       {
         "label": "notch",
         "title": "Scout",
-        "width": 400,
-        "height": 80,
+        "width": 356,
+        "height": 58,
         "decorations": false,
         "transparent": true,
         "alwaysOnTop": true,

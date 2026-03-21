@@ -2,9 +2,15 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
-use tauri::{PhysicalPosition, PhysicalSize, Position, WebviewWindow};
+use tauri::{PhysicalPosition, PhysicalSize, Position, Size, WebviewWindow};
 
 const CURSOR_SYNC_INTERVAL_MS: u64 = 120;
+const NOTCH_WINDOW_WIDTH: u32 = 356;
+const NOTCH_WINDOW_HEIGHT: u32 = 58;
+
+pub fn notch_window_size() -> PhysicalSize<u32> {
+    PhysicalSize::new(NOTCH_WINDOW_WIDTH, NOTCH_WINDOW_HEIGHT)
+}
 
 pub fn compute_notch_window_position(
     monitor_origin: PhysicalPosition<i32>,
@@ -42,6 +48,7 @@ pub fn should_ignore_cursor_events(
 }
 
 pub fn configure_notch_window(window: &WebviewWindow) -> Result<(), String> {
+    resize_window(window)?;
     position_window(window)?;
 
     #[cfg(target_os = "macos")]
@@ -50,6 +57,12 @@ pub fn configure_notch_window(window: &WebviewWindow) -> Result<(), String> {
     sync_window_interactivity(window, false)?;
 
     Ok(())
+}
+
+fn resize_window(window: &WebviewWindow) -> Result<(), String> {
+    window
+        .set_size(Size::Physical(notch_window_size()))
+        .map_err(|error| error.to_string())
 }
 
 pub fn sync_window_interactivity(window: &WebviewWindow, force_interactive: bool) -> Result<(), String> {
