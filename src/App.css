@@ -57,43 +57,76 @@ button {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  padding-top: 0;
   pointer-events: none;
 }
 
-.notch-widget {
+.notch-shell {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  border: 1px solid var(--scout-surface-border);
-  border-top: 0;
-  border-radius: 0 0 22px 22px;
-  background: linear-gradient(
-    180deg,
-    rgba(20, 20, 22, 0.98),
-    var(--scout-surface)
-  );
-  box-shadow: var(--scout-shadow);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  border-radius: 0 0 28px 28px;
+  background: #020202;
+  box-shadow:
+    0 18px 32px rgba(0, 0, 0, 0.22),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
   color: var(--scout-text);
-  padding: 0 16px;
   pointer-events: auto;
   transition:
     width 220ms ease,
     height 220ms ease,
     transform 220ms ease,
-    box-shadow 220ms ease,
-    background 220ms ease;
-  appearance: none;
+    box-shadow 220ms ease;
+  overflow: hidden;
 }
 
-.notch-widget.is-hovering {
+.notch-shell.is-hovering {
   transform: translateY(1px);
   box-shadow:
-    0 20px 44px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    0 22px 34px rgba(0, 0, 0, 0.24),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.notch-shell__hotspot,
+.notch-rail {
+  appearance: none;
+  font: inherit;
+  border: 0;
+  color: inherit;
+  padding: 0;
+}
+
+.notch-shell__hotspot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.notch-shell__hotspot--idle {
+  width: 100%;
+  height: 100%;
+}
+
+.notch-rail {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 32px);
+  height: 42px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.notch-shell--processing .notch-rail,
+.notch-shell--searching .notch-rail,
+.notch-shell--error .notch-rail {
+  width: calc(100% - 28px);
+  height: 38px;
+  margin-top: 10px;
 }
 
 .scout-badge {
@@ -121,8 +154,8 @@ button {
 
 .scout-logo {
   flex: 0 0 auto;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   overflow: visible;
 }
 
@@ -135,19 +168,21 @@ button {
 }
 
 .voice-cluster {
-  gap: 12px;
+  gap: 14px;
   width: 100%;
+  padding: 0 14px;
 }
 
 .status-cluster {
   gap: 10px;
+  padding: 0 14px;
 }
 
 .voice-waveform {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-width: 220px;
+  min-width: 286px;
   height: 40px;
 }
 

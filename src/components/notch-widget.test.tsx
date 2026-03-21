@@ -36,9 +36,11 @@ describe("NotchWidget", () => {
 
     render(<NotchWidget />);
 
+    expect(screen.getByTestId("notch-shell")).toBeInTheDocument();
     expect(screen.getByTestId("scout-badge")).toBeInTheDocument();
     expect(screen.queryByTestId("scout-logo-animated")).not.toBeInTheDocument();
     expect(screen.queryByTestId("voice-waveform")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("notch-rail")).not.toBeInTheDocument();
   });
 
   it("renders the animated scout logo and waveform while listening", () => {
@@ -46,6 +48,8 @@ describe("NotchWidget", () => {
 
     render(<NotchWidget />);
 
+    expect(screen.getByTestId("notch-shell")).toBeInTheDocument();
+    expect(screen.getByTestId("notch-rail")).toBeInTheDocument();
     expect(screen.getByTestId("scout-logo-animated")).toBeInTheDocument();
     expect(screen.getByTestId("voice-waveform")).toBeInTheDocument();
   });
@@ -55,6 +59,8 @@ describe("NotchWidget", () => {
 
     render(<NotchWidget />);
 
+    expect(screen.getByTestId("notch-shell")).toBeInTheDocument();
+    expect(screen.getByTestId("notch-rail")).toBeInTheDocument();
     expect(screen.getByTestId("scout-logo-animated")).toBeInTheDocument();
     expect(screen.getByTestId("voice-waveform")).toBeInTheDocument();
   });

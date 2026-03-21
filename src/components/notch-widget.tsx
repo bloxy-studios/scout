@@ -7,12 +7,12 @@ import { StatusText } from "./status-text";
 import { Waveform } from "./waveform";
 
 const NOTCH_DIMENSIONS = {
-  idle: { width: 122, height: 34 },
-  listening: { width: 356, height: 58 },
-  processing: { width: 224, height: 44 },
-  searching: { width: 244, height: 44 },
-  speaking: { width: 356, height: 58 },
-  error: { width: 296, height: 48 },
+  idle: { width: 132, height: 36 },
+  listening: { width: 430, height: 72 },
+  processing: { width: 290, height: 62 },
+  searching: { width: 316, height: 62 },
+  speaking: { width: 430, height: 72 },
+  error: { width: 328, height: 64 },
 } as const;
 
 export function NotchWidget() {
@@ -80,23 +80,43 @@ export function NotchWidget() {
           void setWindowInteractivity(false);
         }}
       >
-        <button
-          className={`notch-widget notch-widget--${notchState} ${
+        <div
+          className={`notch-shell notch-shell--${notchState} ${
             isHovering ? "is-hovering" : ""
           }`}
+          data-testid="notch-shell"
           style={{
             width: `${dimensions.width}px`,
             height: `${dimensions.height}px`,
           }}
-          type="button"
-          onDoubleClick={() => {
-            if (import.meta.env.DEV) {
-              void activateScout();
-            }
-          }}
         >
-          {content}
-        </button>
+          {notchState === "idle" ? (
+            <button
+              className="notch-shell__hotspot notch-shell__hotspot--idle"
+              type="button"
+              onDoubleClick={() => {
+                if (import.meta.env.DEV) {
+                  void activateScout();
+                }
+              }}
+            >
+              {content}
+            </button>
+          ) : (
+            <button
+              className="notch-rail"
+              data-testid="notch-rail"
+              type="button"
+              onDoubleClick={() => {
+                if (import.meta.env.DEV) {
+                  void activateScout();
+                }
+              }}
+            >
+              {content}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
