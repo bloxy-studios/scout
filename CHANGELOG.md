@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.2](https://github.com/bloxy-studios/scout/compare/scout-v0.2.1...scout-v0.2.2) (2026-03-23)
+
+
+### Bug Fixes
+
+* **audio:** eliminate activation and conversation latency ([a1ca335](https://github.com/bloxy-studios/scout/commit/a1ca335cef9d40e454206cfab1e8b5d2850225e0))
+* **audio:** eliminate activation and conversation latency ([9b1cdac](https://github.com/bloxy-studios/scout/commit/9b1cdaceae6273a0845668afada9662f147d3c05))
+* **audio:** restore micMuted to prevent self-listening loops ([5c18203](https://github.com/bloxy-studios/scout/commit/5c18203b4263650e0f41c5a1d068d0b9b0531ee2))
+* **audio:** restore user-friendly microphone permission error ([534096c](https://github.com/bloxy-studios/scout/commit/534096c2bf95525ee9c5f5606e361eded2470f03))
+
 ## [0.2.1](https://github.com/bloxy-studios/scout/compare/scout-v0.2.0...scout-v0.2.1) (2026-03-23)
 
 
