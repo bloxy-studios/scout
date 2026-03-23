@@ -31,10 +31,8 @@ export type ConversationCompletionState = {
 export const COMPLETION_TIMINGS = {
   minActiveMs: 1_200,
   followUpGraceMs: 1_800,
-  disconnectGraceMs: 400,
   closeNoResponseMs: 2_400,
   closeResponseSettleMs: 250,
-  staleSessionMs: 18_000,
 } as const;
 
 const INPUT_SPEECH_THRESHOLD = 0.08;
@@ -171,12 +169,6 @@ export function shouldReturnToIdle(
     return false;
   }
 
-  if (snapshot.status === "disconnected") {
-    return (
-      snapshot.now - state.lastActivityAt >= COMPLETION_TIMINGS.disconnectGraceMs
-    );
-  }
-
   if (isAgentBusy(snapshot.notchState)) {
     return false;
   }
@@ -202,7 +194,5 @@ export function shouldReturnToIdle(
     return false;
   }
 
-  return (
-    snapshot.now - state.lastActivityAt >= COMPLETION_TIMINGS.staleSessionMs
-  );
+  return false;
 }

@@ -166,18 +166,4 @@ describe("conversation completion controller", () => {
     expect(shouldReturnToIdle(advanced, followUpSample)).toBe(false);
   });
 
-  it("returns to idle after a disconnected quiet period", () => {
-    const initial = createConversationCompletionState(0);
-    const disconnectedSample = createSnapshot({
-      now: COMPLETION_TIMINGS.minActiveMs + COMPLETION_TIMINGS.disconnectGraceMs + 100,
-      status: "disconnected",
-      inputLevel: 0,
-      outputLevel: 0,
-      notchState: "listening",
-    });
-
-    const advanced = advanceConversationCompletion(initial, disconnectedSample);
-
-    expect(shouldReturnToIdle(advanced, disconnectedSample)).toBe(true);
-  });
 });
