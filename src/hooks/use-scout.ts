@@ -37,6 +37,9 @@ import { usePorcupineWakeWord } from "./use-porcupine-wake-word";
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
+    if (error.name === "NotAllowedError" || error.name === "NotFoundError" || error.message.includes("Permission denied") || error.message.includes("Microphone access is not available")) {
+      return "Microphone access is not available. Check that Scout has microphone permission in System Settings > Privacy & Security > Microphone.";
+    }
     return error.message;
   }
 
