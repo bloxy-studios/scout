@@ -134,12 +134,23 @@ fn set_notch_window_level(window: &WebviewWindow) -> Result<(), String> {
     use objc::runtime::Object;
     use objc::{msg_send, sel, sel_impl};
 
+    // NSWindowCollectionBehavior flags (from AppKit):
+    const CAN_JOIN_ALL_SPACES: u64 = 1 << 0;
+    const STATIONARY: u64 = 1 << 4;
+    const FULL_SCREEN_AUXILIARY: u64 = 1 << 8;
+
     let ns_window = window.ns_window().map_err(|error| error.to_string())? as id;
 
     unsafe {
         let _: () = msg_send![
             ns_window as *mut Object,
             setLevel: NSMainMenuWindowLevel as i64 + 1
+        ];
+
+        let behavior: u64 = CAN_JOIN_ALL_SPACES | STATIONARY | FULL_SCREEN_AUXILIARY;
+        let _: () = msg_send![
+            ns_window as *mut Object,
+            setCollectionBehavior: behavior
         ];
     }
 
