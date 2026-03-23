@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/bloxy-studios/scout/compare/scout-v0.2.0...scout-v0.2.1) (2026-03-23)
+
+
+### Bug Fixes
+
+* **ci:** fix artifact upload path resolving ([8179d0f](https://github.com/bloxy-studios/scout/commit/8179d0f77541592517f9c1ff188f4823d146a985))
+
 ## [0.2.0](https://github.com/bloxy-studios/scout/compare/scout-v0.1.0...scout-v0.2.0) (2026-03-23)
 
 
