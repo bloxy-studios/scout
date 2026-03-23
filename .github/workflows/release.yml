@@ -76,12 +76,19 @@ jobs:
           tauriScript: bun run tauri
           args: --target ${{ matrix.target }}
 
+      - name: Parse artifact paths
+        id: parse-artifacts
+        run: |
+          echo "paths<<EOF" >> $GITHUB_OUTPUT
+          echo '${{ steps.tauri.outputs.artifactPaths }}' | jq -r '.[]' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Upload bundled artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
           if-no-files-found: error
-          path: ${{ join(fromJSON(steps.tauri.outputs.artifactPaths), '\n') }}
+          path: ${{ steps.parse-artifacts.outputs.paths }}
 
   publish:
     name: Publish GitHub Release
