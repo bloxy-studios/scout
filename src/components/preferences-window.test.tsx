@@ -45,20 +45,21 @@ describe("PreferencesWindow", () => {
     });
   });
 
-  it("renders first-run setup in the preferences window", async () => {
+  it("renders first-run onboarding step 1 in the preferences window", async () => {
     render(<App />);
 
     expect(
-      await screen.findByRole("heading", { name: "Set Up Scout Shortcut" }),
+      await screen.findByRole("heading", { name: "Set Up Your Shortcut" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Activation Shortcut")).toBeInTheDocument();
     expect(
       screen.getByText("Works globally, even when Scout is in the background."),
     ).toBeInTheDocument();
     expect(screen.getByText("No shortcut set")).toBeInTheDocument();
+    expect(screen.getByText("Step 1 of 2")).toBeInTheDocument();
   }, PREFERENCES_TEST_TIMEOUT_MS);
 
-  it("captures a shortcut candidate and saves it", async () => {
+  it("captures a shortcut candidate and advances to step 2", async () => {
     render(<App />);
 
     const recordButton = await screen.findByRole("button", {
@@ -77,7 +78,7 @@ describe("PreferencesWindow", () => {
 
     expect(screen.getByText("⌥⇧Space")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     await waitFor(() => {
       expect(mockInvoke).toHaveBeenCalledWith("save_shortcut_settings", {
@@ -88,6 +89,11 @@ describe("PreferencesWindow", () => {
         },
       });
     });
+
+    expect(
+      await screen.findByRole("heading", { name: "Microphone Permission" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Step 2 of 2")).toBeInTheDocument();
   }, PREFERENCES_TEST_TIMEOUT_MS);
 
   it("shows inline validation for reserved macOS shortcuts", async () => {
@@ -109,7 +115,7 @@ describe("PreferencesWindow", () => {
         "That shortcut is reserved by macOS. Try another combination.",
       ),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
   }, PREFERENCES_TEST_TIMEOUT_MS);
 
   it("restores the saved shortcut instead of deleting it", async () => {
@@ -215,5 +221,28 @@ describe("PreferencesWindow", () => {
     });
 
     expect(screen.getByText("⌘⌥K")).toBeInTheDocument();
+  }, PREFERENCES_TEST_TIMEOUT_MS);
+
+  it("shows the mic permission panel for returning users", async () => {
+    mockInvoke.mockImplementation(async (command: string) => {
+      if (command === "get_shortcut_settings") {
+        return {
+          enabled: true,
+          accelerator: "Alt+Space",
+          hasCompletedSetup: true,
+        };
+      }
+
+      return null;
+    });
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Keyboard Shortcut" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Microphone Access" }),
+    ).toBeInTheDocument();
   }, PREFERENCES_TEST_TIMEOUT_MS);
 });

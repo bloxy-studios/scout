@@ -5,7 +5,7 @@ use tauri::{LogicalPosition, TitleBarStyle};
 pub const PREFERENCES_WINDOW_LABEL: &str = "preferences";
 pub const PREFERENCES_WINDOW_TITLE: &str = "Scout Preferences";
 pub const PREFERENCES_WINDOW_WIDTH: u32 = 560;
-pub const PREFERENCES_WINDOW_HEIGHT: u32 = 430;
+pub const PREFERENCES_WINDOW_HEIGHT: u32 = 520;
 
 pub fn preferences_window_label() -> &'static str {
     PREFERENCES_WINDOW_LABEL
@@ -65,6 +65,6 @@ mod tests {
         assert_eq!(preferences_window_label(), "preferences");
         assert_eq!(preferences_window_title(), "Scout Preferences");
         assert_eq!(PREFERENCES_WINDOW_WIDTH, 560);
-        assert_eq!(PREFERENCES_WINDOW_HEIGHT, 430);
+        assert_eq!(PREFERENCES_WINDOW_HEIGHT, 520);
     }
 }
