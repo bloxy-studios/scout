@@ -34,7 +34,6 @@ type MockConversation = {
 
 let mockConversation: MockConversation;
 let lastConversationCallbacks: Record<string, ((...args: unknown[]) => void) | undefined> = {};
-let lastConversationOptions: Record<string, unknown> = {};
 let registeredEventHandlers = new Map<string, () => void>();
 
 vi.mock("../config/env", () => ({
@@ -58,7 +57,6 @@ vi.mock("@tauri-apps/api/core", () => ({
 
 vi.mock("@elevenlabs/react", () => ({
   useConversation: (callbacks: Record<string, unknown>) => {
-    lastConversationOptions = callbacks;
     lastConversationCallbacks = callbacks as Record<
       string,
       ((...args: unknown[]) => void) | undefined
@@ -84,7 +82,6 @@ describe("useScout", () => {
       getOutputVolume: vi.fn(() => 0),
     };
     lastConversationCallbacks = {};
-    lastConversationOptions = {};
     registeredEventHandlers = new Map();
     mockInvoke.mockResolvedValue(null);
 
@@ -246,37 +243,6 @@ describe("useScout", () => {
     vi.useRealTimers();
   });
 
-  it("mutes the microphone while Scout is speaking to avoid self-listening loops", async () => {
-    const { result } = renderHook(() => useScout());
-
-    await act(async () => {
-      await result.current.activateScout();
-    });
-
-    await waitFor(() => {
-      expect(result.current.notchState).toBe("listening");
-    });
-
-    expect(lastConversationOptions.micMuted).toBe(false);
-
-    act(() => {
-      lastConversationCallbacks.onModeChange?.({
-        mode: "speaking",
-      });
-    });
-
-    expect(result.current.notchState).toBe("speaking");
-    expect(lastConversationOptions.micMuted).toBe(true);
-
-    act(() => {
-      lastConversationCallbacks.onModeChange?.({
-        mode: "listening",
-      });
-    });
-
-    expect(result.current.notchState).toBe("listening");
-    expect(lastConversationOptions.micMuted).toBe(false);
-  });
 
   it("activates from idle when the menu start event fires", async () => {
     const { result } = renderHook(() => useScout());

@@ -208,7 +208,6 @@ export function useScout(): UseScoutResult {
 
   const conversation = useConversation({
     serverLocation: envResult.config?.elevenLabs.serverLocation,
-    micMuted: state.notchState === "speaking",
     clientTools: {
       startSearchIndicator: () => {
         dispatch({ type: "search-started" });
@@ -286,11 +285,6 @@ export function useScout(): UseScoutResult {
           "Microphone access is not available. Check that Scout has microphone permission in System Settings > Privacy & Security > Microphone.",
         );
       }
-
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach((track) => {
-        track.stop();
-      });
 
       await conversation.startSession({
         agentId: envResult.config.elevenLabs.agentId,
