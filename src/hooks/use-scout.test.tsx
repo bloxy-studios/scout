@@ -246,6 +246,8 @@ describe("useScout", () => {
     vi.useRealTimers();
   });
 
+
+
   it("mutes the microphone while Scout is speaking to avoid self-listening loops", async () => {
     const { result } = renderHook(() => useScout());
 
