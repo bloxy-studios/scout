@@ -2,26 +2,73 @@
 
 All notable changes to Scout will be documented in this file.
 
-The repository changelog is intended to follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) in spirit and is generated/updated with `git-cliff`.
-
+The repository changelog is generated with git-cliff from commit history.
 ## Unreleased
 
 ### Added
 
-- Native macOS menu bar and compact tray controls
-- Preferences window for shortcut configuration
-- macOS-first global shortcut activation flow
-- Premium notch redesign with Scout branding
-- Release-ready GitHub Actions CI and release automation
 
-### Changed
+- Build scout notch voice overlay
 
-- Improved notch lifecycle stability during activation and session cleanup
-- Improved Preferences window UX and shortcut recording
-- Updated app and tray icon handling from source assets
+- Redesign scout notch visuals
+
+- Adopt notchdrop-inspired scout shell
+
+- Add first-run onboarding wizard with shortcut setup and mic permission
+
+
+
+### Build
+
+
+- Add scout notch animation dependencies
+
+
+
+### CI
+
+
+- Install ffmpeg to fix macOS icon generation
+
+
+
+### Chore
+
+
+- Update environment variables, enhance .gitignore, and improve README documentation
+
+
+
+### Documentation
+
+
+- Add premium scout notch redesign spec and plan
+
+- Add scout shortcut trigger design
+
+- Add scout shortcut trigger plan
+
+- Add scout native menu design and plan
+
+
 
 ### Fixed
 
-- Startup idle-state flicker during first activation
-- Notch return-to-idle cleanup after session end
-- Self-listening loop risk while Scout is speaking
+
+- Tighten scout notch native canvas
+
+- Remove white notch canvas background
+
+- Prevent notch from reverting to idle during activation and remove stale timeout
+
+- Show notch window across all spaces and increase preferences window height
+
+
+
+### Other Changes
+
+
+- First commit
+
+
+
