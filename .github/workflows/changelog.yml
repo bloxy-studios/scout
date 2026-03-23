@@ -1,0 +1,47 @@
+name: Changelog
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: changelog-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update-changelog:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --verbose --output CHANGELOG.md
+        env:
+          OUTPUT: CHANGELOG.md
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create changelog pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "docs: update changelog"
+          title: "docs: update changelog"
+          body: |
+            Automated changelog update generated from commit history with git-cliff.
+          branch: automation/update-changelog
+          delete-branch: true

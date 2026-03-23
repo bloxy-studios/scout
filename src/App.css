@@ -1,13 +1,14 @@
 :root {
   font-family:
-    "Geist",
+    "SF Pro Text",
     "SF Pro Display",
     -apple-system,
     BlinkMacSystemFont,
+    "Helvetica Neue",
     sans-serif;
   font-size: 16px;
-  line-height: 1.4;
-  font-weight: 500;
+  line-height: 1.35;
+  font-weight: 400;
   color: rgba(255, 255, 255, 0.92);
   background: transparent;
   font-synthesis: none;
@@ -20,7 +21,6 @@
   --scout-surface-border: rgba(255, 255, 255, 0.08);
   --scout-text: rgba(255, 255, 255, 0.92);
   --scout-text-muted: rgba(255, 255, 255, 0.6);
-  --scout-waveform: rgba(255, 255, 255, 0.9);
   --scout-error: rgba(255, 215, 215, 0.92);
   --scout-shadow:
     0 18px 40px rgba(0, 0, 0, 0.22),
@@ -43,6 +43,249 @@ body {
 
 button {
   font: inherit;
+}
+
+.preferences-window {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.05), transparent 34%),
+    linear-gradient(180deg, rgba(39, 39, 42, 0.96), rgba(28, 28, 30, 0.98));
+  color: var(--scout-text);
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+}
+
+.preferences-window__content {
+  display: grid;
+  min-height: 100%;
+  box-sizing: border-box;
+  align-content: start;
+  padding: 62px 20px 18px;
+  gap: 18px;
+}
+
+.preferences-window__content--loading {
+  place-items: center;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+}
+
+.preferences-window__eyebrow {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 10px;
+  font-weight: 590;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.preferences-window__header,
+.preferences-window__label-stack,
+.preferences-window__group {
+  display: grid;
+}
+
+.preferences-window__header {
+  gap: 6px;
+}
+
+.preferences-window__content h1,
+.preferences-window__content h2,
+.preferences-window__content p {
+  margin: 0;
+}
+
+.preferences-window__content h1 {
+  font-size: 22px;
+  line-height: 1.18;
+  letter-spacing: -0.025em;
+  font-weight: 590;
+}
+
+.preferences-window__description {
+  max-width: 470px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 13px;
+  line-height: 1.46;
+}
+
+.preferences-window__panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px 14px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.preferences-window__row {
+  display: grid;
+  grid-template-columns: minmax(132px, 148px) minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.preferences-window__label-stack {
+  gap: 4px;
+}
+
+.preferences-window__label-stack h2 {
+  font-size: 13px;
+  font-weight: 590;
+  letter-spacing: -0.012em;
+}
+
+.preferences-window__helper {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.shortcut-recorder {
+  display: grid;
+  gap: 6px;
+}
+
+.shortcut-recorder__field {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: 0;
+  min-height: 38px;
+  border-radius: 10px;
+  padding: 0 11px 0 12px;
+  font: inherit;
+  text-align: left;
+  color: var(--scout-text);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition:
+    box-shadow 120ms ease,
+    background-color 120ms ease,
+    transform 120ms ease;
+}
+
+.shortcut-recorder__field:hover {
+  background: rgba(255, 255, 255, 0.085);
+}
+
+.shortcut-recorder__field:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(10, 132, 255, 0.92),
+    0 0 0 3px rgba(10, 132, 255, 0.18);
+}
+
+.shortcut-recorder__value {
+  font-size: 14px;
+  font-weight: 520;
+  letter-spacing: -0.015em;
+}
+
+.shortcut-recorder__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.56);
+  font-size: 11px;
+  font-weight: 560;
+  letter-spacing: -0.01em;
+}
+
+.shortcut-recorder__field[data-recording="true"] .shortcut-recorder__badge {
+  background: rgba(10, 132, 255, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(10, 132, 255, 0.3);
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.shortcut-recorder__hint {
+  color: rgba(255, 255, 255, 0.44);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.preferences-window__error {
+  color: rgba(255, 196, 196, 0.96);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.preferences-window__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.preferences-window__footer-copy {
+  color: rgba(255, 255, 255, 0.44);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.preferences-window__button {
+  appearance: none;
+  border-radius: 8px;
+  border: 0;
+  min-width: 82px;
+  height: 28px;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 590;
+  letter-spacing: -0.01em;
+}
+
+.preferences-window__button--secondary {
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.preferences-window__button--primary {
+  color: white;
+  background: rgb(10, 132, 255);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.preferences-window__button:disabled {
+  opacity: 0.42;
+  box-shadow: none;
+}
+
+@media (max-width: 560px) {
+  .preferences-window__content {
+    padding: 58px 16px 16px;
+  }
+
+  .preferences-window__row {
+    grid-template-columns: 1fr;
+  }
+
+  .preferences-window__actions {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .preferences-window__button {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .scout-app {
@@ -114,6 +357,8 @@ button {
   width: calc(100% - 32px);
   height: 42px;
   margin-top: 12px;
+  padding: 0 18px;
+  box-sizing: border-box;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
@@ -122,28 +367,21 @@ button {
 }
 
 .notch-shell--processing .notch-rail,
+.notch-shell--listening .notch-rail,
 .notch-shell--searching .notch-rail,
+.notch-shell--speaking .notch-rail,
 .notch-shell--error .notch-rail {
   width: calc(100% - 28px);
   height: 38px;
   margin-top: 10px;
+  padding: 0 14px;
 }
 
 .scout-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   width: 18px;
   height: 18px;
-  background: rgba(255, 255, 255, 0.92);
-  -webkit-mask-image: var(--scout-badge-mask);
-  mask-image: var(--scout-badge-mask);
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-size: contain;
-  mask-size: contain;
+  object-fit: contain;
 }
 
 .scout-badge--small {
@@ -154,8 +392,10 @@ button {
 
 .scout-logo {
   flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
+  margin-left: -2px;
+  margin-right: 2px;
   overflow: visible;
 }
 
@@ -168,32 +408,41 @@ button {
 }
 
 .voice-cluster {
-  gap: 14px;
-  width: 100%;
-  padding: 0 14px;
+  flex: 0 0 auto;
+  gap: 10px;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .status-cluster {
+  flex: 0 0 auto;
   gap: 10px;
-  padding: 0 14px;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .voice-waveform {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
-  gap: 6px;
-  min-width: 286px;
-  height: 40px;
+  justify-content: center;
+  gap: 4px;
+  width: 158px;
+  max-width: 100%;
+  height: 34px;
 }
 
 .voice-waveform__bar {
-  width: 6px;
-  min-height: 8px;
+  width: 5px;
+  min-height: 7px;
   border-radius: 999px;
-  background: var(--scout-waveform);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.08);
   transition:
     height 120ms ease,
-    opacity 120ms ease;
+    opacity 120ms ease,
+    background-image 180ms ease;
 }
 
 .status-text {

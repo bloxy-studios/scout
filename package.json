@@ -2,6 +2,7 @@
   "name": "scout",
   "private": true,
   "version": "0.1.0",
+  "description": "Voice-first macOS notch assistant built with Tauri, ElevenLabs, and Firecrawl.",
   "type": "module",
   "scripts": {
     "dev": "vite",

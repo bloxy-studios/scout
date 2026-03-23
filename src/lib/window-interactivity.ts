@@ -1,26 +1,22 @@
 import { invoke } from "@tauri-apps/api/core";
 
-function isTauriRuntime(): boolean {
-  return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
-}
-
 export async function setWindowInteractivity(
   interactive: boolean,
 ): Promise<void> {
-  if (!isTauriRuntime()) {
-    return;
+  try {
+    await invoke("set_window_interactivity", { interactive });
+  } catch {
+    // No-op outside the Tauri runtime.
   }
-
-  await invoke("set_window_interactivity", { interactive });
 }
 
 export async function setNotchWindowSize(
   width: number,
   height: number,
 ): Promise<void> {
-  if (!isTauriRuntime()) {
-    return;
+  try {
+    await invoke("set_notch_window_size", { width, height });
+  } catch {
+    // No-op outside the Tauri runtime.
   }
-
-  await invoke("set_notch_window_size", { width, height });
 }

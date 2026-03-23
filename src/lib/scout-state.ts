@@ -52,16 +52,28 @@ export function reduceScoutState(
         errorMessage: null,
       };
     case "user-transcript-received":
+      if (!state.sessionActive) {
+        return state;
+      }
+
       return {
         ...state,
         notchState: "processing",
       };
     case "search-started":
+      if (!state.sessionActive) {
+        return state;
+      }
+
       return {
         ...state,
         notchState: "searching",
       };
     case "agent-mode-changed":
+      if (!state.sessionActive) {
+        return state;
+      }
+
       return {
         ...state,
         notchState: event.mode === "speaking" ? "speaking" : "listening",

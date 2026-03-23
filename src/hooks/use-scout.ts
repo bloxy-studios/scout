@@ -2,6 +2,8 @@ import {
   useConversation,
   type HookCallbacks,
 } from "@elevenlabs/react";
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import {
   useCallback,
   type Dispatch,
@@ -14,14 +16,24 @@ import {
 } from "react";
 import { parseScoutEnv } from "../config/env";
 import {
+  detectCloseIntent,
+  extractTranscriptText,
+} from "../lib/close-intent";
+import {
+  advanceConversationCompletion,
+  clearConversationCloseRequest,
+  createConversationCompletionState,
+  requestConversationClose,
+  shouldReturnToIdle,
+  type ConversationConnectionStatus,
+} from "../lib/conversation-completion";
+import {
   createInitialScoutState,
   reduceScoutState,
   type NotchState,
   type ScoutState,
 } from "../lib/scout-state";
 import { usePorcupineWakeWord } from "./use-porcupine-wake-word";
-
-const IDLE_RETURN_DELAY_MS = 5_000;
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
@@ -37,10 +49,20 @@ function getErrorMessage(error: unknown): string {
 
 function createMessageHandler(
   dispatch: Dispatch<Parameters<typeof reduceScoutState>[1]>,
+  onExplicitCloseIntent: () => void,
+  onContinuedConversation: () => void,
 ): NonNullable<HookCallbacks["onMessage"]> {
   return (event) => {
     if (event.source === "user") {
       dispatch({ type: "user-transcript-received" });
+
+      const transcript = extractTranscriptText(event);
+
+      if (detectCloseIntent(transcript)) {
+        onExplicitCloseIntent();
+      } else {
+        onContinuedConversation();
+      }
     }
   };
 }
@@ -53,6 +75,7 @@ export type UseScoutResult = {
 };
 
 export function useScout(): UseScoutResult {
+  const DISCONNECT_VERIFICATION_MS = 120;
   const envResult = useMemo(() => {
     try {
       return {
@@ -73,53 +96,161 @@ export function useScout(): UseScoutResult {
   );
   const [wakeWordLevel, setWakeWordLevel] = useState(0);
   const [conversationLevel, setConversationLevel] = useState(0);
-  const idleTimerRef = useRef<number | null>(null);
   const activationInFlightRef = useRef(false);
+  const sessionStartingRef = useRef(false);
+  const completionStateRef = useRef<ReturnType<typeof createConversationCompletionState> | null>(null);
+  const sessionEndingRef = useRef(false);
+  const sessionErroredRef = useRef(false);
+  const disconnectVerificationTimerRef = useRef<number | null>(null);
 
-  const clearIdleTimer = useEffectEvent(() => {
-    if (idleTimerRef.current) {
-      window.clearTimeout(idleTimerRef.current);
-      idleTimerRef.current = null;
+  const clearPendingDisconnectVerification = useEffectEvent(() => {
+    if (disconnectVerificationTimerRef.current !== null) {
+      window.clearTimeout(disconnectVerificationTimerRef.current);
+      disconnectVerificationTimerRef.current = null;
     }
   });
 
-  const scheduleIdleReturn = useEffectEvent(() => {
-    clearIdleTimer();
-    idleTimerRef.current = window.setTimeout(() => {
-      dispatch({ type: "session-ended" });
-    }, IDLE_RETURN_DELAY_MS);
+  const finalizeSession = useEffectEvent(() => {
+    clearPendingDisconnectVerification();
+    activationInFlightRef.current = false;
+    sessionStartingRef.current = false;
+    completionStateRef.current = null;
+    sessionEndingRef.current = false;
+    sessionErroredRef.current = false;
+    dispatch({ type: "session-ended" });
+  });
+
+  const markExplicitCloseIntent = useEffectEvent(() => {
+    const now = performance.now();
+    const currentState =
+      completionStateRef.current ?? createConversationCompletionState(now);
+
+    completionStateRef.current = requestConversationClose(currentState, now);
+  });
+
+  const clearExplicitCloseIntent = useEffectEvent(() => {
+    if (!completionStateRef.current) {
+      return;
+    }
+
+    completionStateRef.current = clearConversationCloseRequest(
+      completionStateRef.current,
+    );
+  });
+
+  const confirmConversationDisconnected = useEffectEvent(() => {
+    activationInFlightRef.current = false;
+    completionStateRef.current = null;
+
+    if (sessionErroredRef.current) {
+      clearPendingDisconnectVerification();
+      sessionEndingRef.current = false;
+      sessionErroredRef.current = false;
+      return;
+    }
+
+    if (sessionStartingRef.current && !sessionEndingRef.current) {
+      return;
+    }
+
+    if (
+      !sessionEndingRef.current &&
+      conversation.status !== "disconnected"
+    ) {
+      return;
+    }
+
+    if (state.sessionActive || sessionEndingRef.current) {
+      finalizeSession();
+    }
+  });
+
+  const handleConversationDisconnected = useEffectEvent(() => {
+    clearPendingDisconnectVerification();
+
+    disconnectVerificationTimerRef.current = window.setTimeout(() => {
+      disconnectVerificationTimerRef.current = null;
+      confirmConversationDisconnected();
+    }, DISCONNECT_VERIFICATION_MS);
+  });
+
+  const endConversationAndReturnIdle = useEffectEvent(async () => {
+    if (sessionEndingRef.current) {
+      return;
+    }
+
+    clearPendingDisconnectVerification();
+    sessionEndingRef.current = true;
+    activationInFlightRef.current = false;
+    sessionStartingRef.current = false;
+
+    try {
+      if (
+        conversation.status === "connected" ||
+        conversation.status === "connecting"
+      ) {
+        await conversation.endSession();
+        window.setTimeout(() => {
+          if (sessionEndingRef.current) {
+            finalizeSession();
+          }
+        }, 600);
+        return;
+      }
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn("[Scout completion]", error);
+      }
+    }
+
+    finalizeSession();
   });
 
   const conversation = useConversation({
     serverLocation: envResult.config?.elevenLabs.serverLocation,
+    micMuted: state.notchState === "speaking",
     clientTools: {
       startSearchIndicator: () => {
         dispatch({ type: "search-started" });
         return "acknowledged";
       },
     },
-    onDisconnect: () => {
-      activationInFlightRef.current = false;
-      scheduleIdleReturn();
-    },
+    onDisconnect: handleConversationDisconnected,
     onError: (error) => {
       activationInFlightRef.current = false;
+      sessionStartingRef.current = false;
+      clearPendingDisconnectVerification();
+      sessionErroredRef.current = true;
+      completionStateRef.current = null;
+      sessionEndingRef.current = false;
       dispatch({
         type: "session-error",
         message: getErrorMessage(error),
       });
     },
-    onMessage: createMessageHandler(dispatch),
+    onStatusChange: ({ status }) => {
+      if (status === "disconnected") {
+        handleConversationDisconnected();
+        return;
+      }
+
+      sessionStartingRef.current = false;
+      activationInFlightRef.current = false;
+      clearPendingDisconnectVerification();
+    },
+    onMessage: createMessageHandler(
+      dispatch,
+      markExplicitCloseIntent,
+      clearExplicitCloseIntent,
+    ),
     onModeChange: ({ mode }) => {
+      sessionStartingRef.current = false;
+      activationInFlightRef.current = false;
+      clearPendingDisconnectVerification();
       dispatch({
         type: "agent-mode-changed",
         mode,
       });
-    },
-    onStatusChange: ({ status }) => {
-      if (status === "disconnected" && state.sessionActive) {
-        scheduleIdleReturn();
-      }
     },
   });
 
@@ -141,10 +272,21 @@ export function useScout(): UseScoutResult {
     }
 
     activationInFlightRef.current = true;
-    clearIdleTimer();
+    sessionStartingRef.current = true;
+    sessionEndingRef.current = false;
+    sessionErroredRef.current = false;
+    completionStateRef.current = createConversationCompletionState(
+      performance.now(),
+    );
     dispatch({ type: "activation-requested" });
 
     try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        throw new Error(
+          "Microphone access is not available. Check that Scout has microphone permission in System Settings > Privacy & Security > Microphone.",
+        );
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((track) => {
         track.stop();
@@ -154,14 +296,18 @@ export function useScout(): UseScoutResult {
         agentId: envResult.config.elevenLabs.agentId,
         connectionType: "webrtc",
       });
+
+      activationInFlightRef.current = false;
+      sessionStartingRef.current = false;
     } catch (error) {
       activationInFlightRef.current = false;
+      sessionStartingRef.current = false;
       dispatch({
         type: "session-error",
         message: getErrorMessage(error),
       });
     }
-  }, [clearIdleTimer, conversation, envResult.config, envResult.error]);
+  }, [conversation, envResult.config, envResult.error]);
 
   usePorcupineWakeWord({
     config: envResult.config,
@@ -175,16 +321,104 @@ export function useScout(): UseScoutResult {
     },
   });
 
+  const toggleScout = useEffectEvent(async () => {
+    const isConversationActive =
+      state.sessionActive || conversation.status !== "disconnected";
+
+    if (isConversationActive) {
+      await endConversationAndReturnIdle();
+      return;
+    }
+
+    await activateScout();
+  });
+
+  const handleMenuStartRequested = useEffectEvent(async () => {
+    await activateScout();
+  });
+
+  const handleMenuEndRequested = useEffectEvent(async () => {
+    await endConversationAndReturnIdle();
+  });
+
+  useEffect(() => {
+    let unlistenHandlers: Array<() => void> = [];
+
+    void Promise.all([
+      listen("scout://toggle-requested", () => {
+        void toggleScout();
+      }),
+      listen("scout://start-requested", () => {
+        void handleMenuStartRequested();
+      }),
+      listen("scout://end-requested", () => {
+        void handleMenuEndRequested();
+      }),
+    ])
+      .then((cleanups) => {
+        unlistenHandlers = cleanups;
+      })
+      .catch(() => undefined);
+
+    return () => {
+      unlistenHandlers.forEach((cleanup) => {
+        cleanup();
+      });
+    };
+  }, [handleMenuEndRequested, handleMenuStartRequested, toggleScout]);
+
+  useEffect(() => {
+    const active =
+      state.sessionActive || conversation.status !== "disconnected";
+
+    void invoke("set_scout_activity_state", { active }).catch(() => undefined);
+  }, [conversation.status, state.sessionActive]);
+
+  useEffect(() => {
+    return () => {
+      if (disconnectVerificationTimerRef.current !== null) {
+        window.clearTimeout(disconnectVerificationTimerRef.current);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     let frameId = 0;
 
     const updateLevel = () => {
-      const nextLevel =
-        state.notchState === "speaking"
-          ? conversation.getOutputVolume()
-          : conversation.getInputVolume();
+      const inputLevel = conversation.getInputVolume();
+      const outputLevel = conversation.getOutputVolume();
+      const nextLevel = state.notchState === "speaking" ? outputLevel : inputLevel;
 
       setConversationLevel(nextLevel);
+
+      if (state.sessionActive) {
+        const now = performance.now();
+        const currentCompletionState =
+          completionStateRef.current ?? createConversationCompletionState(now);
+        const snapshot = {
+          now,
+          inputLevel,
+          outputLevel,
+          notchState: state.notchState,
+          sessionActive: state.sessionActive,
+          status: conversation.status as ConversationConnectionStatus,
+        };
+        const nextCompletionState = advanceConversationCompletion(
+          currentCompletionState,
+          snapshot,
+        );
+
+        completionStateRef.current = nextCompletionState;
+
+        if (shouldReturnToIdle(nextCompletionState, snapshot)) {
+          void endConversationAndReturnIdle();
+          return;
+        }
+      } else {
+        completionStateRef.current = null;
+      }
+
       frameId = window.requestAnimationFrame(updateLevel);
     };
 
@@ -193,13 +427,7 @@ export function useScout(): UseScoutResult {
     return () => {
       window.cancelAnimationFrame(frameId);
     };
-  }, [conversation, state.notchState]);
-
-  useEffect(() => {
-    return () => {
-      clearIdleTimer();
-    };
-  }, [clearIdleTimer]);
+  }, [conversation, endConversationAndReturnIdle, state.notchState, state.sessionActive]);
 
   return {
     state,

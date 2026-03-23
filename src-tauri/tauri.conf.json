@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "scout",
+  "productName": "Scout",
   "version": "0.1.0",
   "identifier": "com.bloxystudios.scout",
   "build": {
@@ -10,12 +10,13 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
         "label": "notch",
         "title": "Scout",
-        "width": 356,
-        "height": 58,
+        "width": 132,
+        "height": 36,
         "decorations": false,
         "transparent": true,
         "alwaysOnTop": true,
@@ -26,7 +27,7 @@
       }
     ],
     "security": {
-      "capabilities": ["default"],
+      "capabilities": ["default", "preferences"],
       "csp": null
     }
   },

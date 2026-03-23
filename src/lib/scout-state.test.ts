@@ -50,4 +50,18 @@ describe("reduceScoutState", () => {
     expect(idleState.notchState).toBe("idle");
     expect(idleState.sessionActive).toBe(false);
   });
+
+  it("ignores late mode changes after the session has already ended", () => {
+    const idleState = reduceScoutState(createInitialScoutState(), {
+      type: "session-ended",
+    });
+
+    const nextState = reduceScoutState(idleState, {
+      type: "agent-mode-changed",
+      mode: "speaking",
+    });
+
+    expect(nextState.notchState).toBe("idle");
+    expect(nextState.sessionActive).toBe(false);
+  });
 });

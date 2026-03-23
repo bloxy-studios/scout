@@ -5,8 +5,8 @@ use std::time::Duration;
 use tauri::{PhysicalPosition, PhysicalSize, Position, Size, WebviewWindow};
 
 const CURSOR_SYNC_INTERVAL_MS: u64 = 120;
-const NOTCH_WINDOW_WIDTH: u32 = 356;
-const NOTCH_WINDOW_HEIGHT: u32 = 58;
+const NOTCH_WINDOW_WIDTH: u32 = 132;
+const NOTCH_WINDOW_HEIGHT: u32 = 36;
 
 pub fn notch_window_size() -> PhysicalSize<u32> {
     PhysicalSize::new(NOTCH_WINDOW_WIDTH, NOTCH_WINDOW_HEIGHT)
@@ -23,7 +23,7 @@ pub fn resize_notch_window(
         .set_size(Size::Physical(size))
         .map_err(|error| error.to_string())?;
 
-    position_window(window)
+    position_window(window, size)
 }
 
 pub fn compute_notch_window_position(
@@ -63,7 +63,6 @@ pub fn should_ignore_cursor_events(
 
 pub fn configure_notch_window(window: &WebviewWindow) -> Result<(), String> {
     resize_window(window)?;
-    position_window(window)?;
 
     #[cfg(target_os = "macos")]
     set_notch_window_level(window)?;
@@ -112,7 +111,7 @@ pub fn start_cursor_sync(
     });
 }
 
-fn position_window(window: &WebviewWindow) -> Result<(), String> {
+fn position_window(window: &WebviewWindow, window_size: PhysicalSize<u32>) -> Result<(), String> {
     let monitor = window
         .primary_monitor()
         .map_err(|error| error.to_string())?
@@ -120,7 +119,7 @@ fn position_window(window: &WebviewWindow) -> Result<(), String> {
     let position = compute_notch_window_position(
         *monitor.position(),
         *monitor.size(),
-        window.outer_size().map_err(|error| error.to_string())?,
+        window_size,
     );
 
     window

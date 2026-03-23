@@ -86,11 +86,13 @@ export const ScoutLogo = ({ className }: ScoutLogoProps) => {
           r="200.35"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#f3f4f6" />
-          <stop offset=".24" stopColor="#d4d4d8" />
-          <stop offset=".55" stopColor="#a1a1aa" />
-          <stop offset=".82" stopColor="#71717a" />
-          <stop offset="1" stopColor="#52525b" />
+          <stop offset="0" stopColor="#c4c7f8" />
+          <stop offset=".09" stopColor="#b1b4f4" />
+          <stop offset=".24" stopColor="#9498ef" />
+          <stop offset=".33" stopColor="#8a8eee" />
+          <stop offset=".46" stopColor="#7478e9" />
+          <stop offset=".63" stopColor="#5d60e4" />
+          <stop offset=".74" stopColor="#5558e3" />
         </radialGradient>
       </defs>
       <g data-name="Layer 1">

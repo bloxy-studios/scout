@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { useScout } from "../hooks/use-scout";
 import {
   setNotchWindowSize,
@@ -11,39 +11,41 @@ import { Waveform } from "./waveform";
 
 const NOTCH_DIMENSIONS = {
   idle: { width: 132, height: 36 },
-  listening: { width: 430, height: 72 },
+  listening: { width: 290, height: 62 },
   processing: { width: 290, height: 62 },
-  searching: { width: 316, height: 62 },
-  speaking: { width: 430, height: 72 },
+  searching: { width: 290, height: 62 },
+  speaking: { width: 290, height: 62 },
   error: { width: 328, height: 64 },
 } as const;
 
 export function NotchWidget() {
   const { state, notchState, audioLevel, activateScout } = useScout();
   const [isHovering, setIsHovering] = useState(false);
+  const visualNotchState =
+    state.sessionActive || notchState === "error" ? notchState : "idle";
 
-  const dimensions = NOTCH_DIMENSIONS[notchState];
+  const dimensions = NOTCH_DIMENSIONS[visualNotchState];
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     void setNotchWindowSize(dimensions.width, dimensions.height);
   }, [dimensions.height, dimensions.width]);
 
   const content = useMemo(() => {
-    switch (notchState) {
+    switch (visualNotchState) {
       case "idle":
         return <ScoutBadge />;
       case "listening":
         return (
-          <div className="voice-cluster">
+          <div className="voice-cluster" data-testid="voice-cluster">
             <ScoutLogo className="scout-logo scout-logo--active" />
-            <Waveform level={audioLevel} />
+            <Waveform level={audioLevel} variant="listening" />
           </div>
         );
       case "processing":
         return (
           <div className="status-cluster">
             <ScoutBadge className="scout-badge--small" />
-            <StatusText text="Thinking…" />
+            <Waveform level={audioLevel} variant="processing" />
           </div>
         );
       case "searching":
@@ -55,9 +57,9 @@ export function NotchWidget() {
         );
       case "speaking":
         return (
-          <div className="voice-cluster">
+          <div className="voice-cluster" data-testid="voice-cluster">
             <ScoutLogo className="scout-logo scout-logo--active" />
-            <Waveform level={audioLevel} />
+            <Waveform level={audioLevel} variant="speaking" />
           </div>
         );
       case "error":
@@ -73,7 +75,7 @@ export function NotchWidget() {
       default:
         return null;
     }
-  }, [audioLevel, notchState, state.errorMessage]);
+  }, [audioLevel, state.errorMessage, visualNotchState]);
 
   return (
     <div className="scout-app">
@@ -89,7 +91,7 @@ export function NotchWidget() {
         }}
       >
         <div
-          className={`notch-shell notch-shell--${notchState} ${
+          className={`notch-shell notch-shell--${visualNotchState} ${
             isHovering ? "is-hovering" : ""
           }`}
           data-testid="notch-shell"
@@ -98,7 +100,7 @@ export function NotchWidget() {
             height: `${dimensions.height}px`,
           }}
         >
-          {notchState === "idle" ? (
+          {visualNotchState === "idle" ? (
             <button
               className="notch-shell__hotspot notch-shell__hotspot--idle"
               type="button"

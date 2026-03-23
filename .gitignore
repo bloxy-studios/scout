@@ -11,6 +11,13 @@ node_modules
 dist
 dist-ssr
 *.local
+.worktrees
+.env
+src-tauri/target
+release-artifacts
+*.dmg
+*.app
+*.app.tar.gz
 
 # Editor directories and files
 .vscode/*

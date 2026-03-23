@@ -1,28 +1,115 @@
+import { useEffect, useRef, useState } from "react";
+import {
+  buildWaveformFrame,
+  type WaveformBarFrame,
+  type WaveformVariant,
+} from "../lib/waveform-motion";
+
 type WaveformProps = {
   level: number;
+  variant: WaveformVariant;
 };
 
-const BAR_PROFILE = [
-  0.26, 0.84, 1.0, 0.68, 0.34, 0.16, 0.2, 0.16, 0.28, 0.52, 0.3, 0.2, 0.34,
-  0.78, 0.56, 0.22, 0.18, 0.22, 0.34, 0.62, 0.9, 0.54, 0.28, 0.16,
-] as const;
+const PHASE_SPEED: Record<WaveformVariant, number> = {
+  listening: 3.4,
+  speaking: 2.8,
+  processing: 1.65,
+};
 
-export function Waveform({ level }: WaveformProps) {
-  const intensity = Math.max(0.12, Math.min(1, level * 1.4 + 0.18));
+const SMOOTHING_FACTOR: Record<WaveformVariant, number> = {
+  listening: 0.24,
+  speaking: 0.18,
+  processing: 0.12,
+};
+
+function clamp(value: number, min = 0, max = 1): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function easeTowards(current: number, target: number, factor: number, deltaMs: number): number {
+  const frameFactor = 1 - Math.pow(1 - factor, deltaMs / 16.667);
+
+  return current + (target - current) * frameFactor;
+}
+
+export function Waveform({ level, variant }: WaveformProps) {
+  const [frame, setFrame] = useState<WaveformBarFrame[]>(() =>
+    buildWaveformFrame({
+      variant,
+      signal: clamp(level),
+      phase: 0,
+    }),
+  );
+  const phaseRef = useRef(0);
+  const signalRef = useRef(clamp(level));
+  const displaySignalRef = useRef(clamp(level));
+
+  useEffect(() => {
+    signalRef.current = clamp(level);
+  }, [level]);
+
+  useEffect(() => {
+    phaseRef.current = 0;
+    displaySignalRef.current = clamp(level);
+    setFrame(
+      buildWaveformFrame({
+        variant,
+        signal: clamp(level),
+        phase: 0,
+      }),
+    );
+  }, [level, variant]);
+
+  useEffect(() => {
+    let animationFrameId = 0;
+    let lastFrameTime = performance.now();
+
+    const updateFrame = (now: number) => {
+      const deltaMs = Math.min(64, now - lastFrameTime);
+      lastFrameTime = now;
+      displaySignalRef.current = easeTowards(
+        displaySignalRef.current,
+        signalRef.current,
+        SMOOTHING_FACTOR[variant],
+        deltaMs,
+      );
+      phaseRef.current += (deltaMs / 1000) * PHASE_SPEED[variant];
+
+      setFrame(
+        buildWaveformFrame({
+          variant,
+          signal: displaySignalRef.current,
+          phase: phaseRef.current,
+        }),
+      );
+
+      animationFrameId = window.requestAnimationFrame(updateFrame);
+    };
+
+    animationFrameId = window.requestAnimationFrame(updateFrame);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+    };
+  }, [variant]);
 
   return (
-    <div className="voice-waveform" data-testid="voice-waveform" aria-hidden="true">
-      {BAR_PROFILE.map((shape, index) => {
-        const height = 8 + shape * 34 * intensity;
-        const opacity = 0.32 + shape * 0.68;
-
+    <div
+      className={`voice-waveform voice-waveform--${variant}`}
+      data-testid="voice-waveform"
+      data-variant={variant}
+      aria-hidden="true"
+    >
+      {frame.map((bar, index) => {
         return (
           <span
-            key={index}
+            key={`${variant}-${index}`}
             className="voice-waveform__bar"
+            data-palette={bar.palette}
             style={{
-              height: `${height}px`,
-              opacity,
+              height: `${bar.height}px`,
+              opacity: bar.opacity,
+              backgroundImage: bar.background,
             }}
           />
         );
