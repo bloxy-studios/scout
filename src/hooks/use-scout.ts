@@ -211,6 +211,7 @@ export function useScout(): UseScoutResult {
 
   const conversation = useConversation({
     serverLocation: envResult.config?.elevenLabs.serverLocation,
+    micMuted: state.notchState === "speaking",
     clientTools: {
       startSearchIndicator: () => {
         dispatch({ type: "search-started" });
