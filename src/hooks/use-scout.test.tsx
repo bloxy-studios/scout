@@ -284,7 +284,7 @@ describe("useScout", () => {
         source: "user",
         text: "search for dogs"
       });
-      lastConversationOptions.clientTools?.startSearchIndicator?.();
+      (lastConversationOptions as any).clientTools?.startSearchIndicator?.();
     });
 
     expect(result.current.notchState).toBe("searching");
