@@ -278,6 +278,17 @@ describe("useScout", () => {
 
     expect(result.current.notchState).toBe("listening");
     expect(lastConversationOptions.micMuted).toBe(false);
+
+    act(() => {
+      lastConversationCallbacks.onMessage?.({
+        source: "user",
+        text: "search for dogs"
+      });
+      (lastConversationOptions as any).clientTools?.startSearchIndicator?.();
+    });
+
+    expect(result.current.notchState).toBe("searching");
+    expect(lastConversationOptions.micMuted).toBe(true);
   });
 
   it("activates from idle when the menu start event fires", async () => {
