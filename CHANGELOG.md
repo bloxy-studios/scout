@@ -88,6 +88,12 @@ The repository changelog is generated with git-cliff from commit history.
 
 - Add scout native menu design and plan
 
+- Update changelog
+
+- 
+
+docs: update changelog
+
 
 
 ### Fixed
